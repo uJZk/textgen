@@ -99,7 +99,7 @@ def get_gpu_choice():
             )
 
         # Convert choice to GPU name
-        gpu_choice = {"A": "NVIDIA_CUDA128", "B": "AMD", "C": "APPLE", "D": "INTEL", "N": "NONE"}[choice]
+        gpu_choice = {"A": "NVIDIA_CUDA130", "B": "AMD", "C": "APPLE", "D": "INTEL", "N": "NONE"}[choice]
 
         # Save choice to state
         state['gpu_choice'] = gpu_choice
@@ -113,8 +113,8 @@ def get_pytorch_install_command(gpu_choice):
     base_cmd = f"python -m pip install torch=={TORCH_VERSION} "
     pypi_fallback = " --extra-index-url https://pypi.org/simple/"
 
-    if gpu_choice == "NVIDIA_CUDA128":
-        return base_cmd + "--index-url https://download.pytorch.org/whl/cu128" + pypi_fallback
+    if gpu_choice == "NVIDIA_CUDA130":
+        return base_cmd + "--index-url https://download.pytorch.org/whl/cu130" + pypi_fallback
     elif gpu_choice == "AMD":
         py_tag = f"cp{PYTHON_VERSION.replace('.', '')}"
         return f"python -m pip install https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/torch-{TORCH_VERSION}%2Brocm7.2.0.lw.git7e1940d4-{py_tag}-{py_tag}-linux_x86_64.whl --find-links https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/"
@@ -131,8 +131,8 @@ def get_pytorch_update_command(gpu_choice):
     base_cmd = f"python -m pip install --upgrade torch=={TORCH_VERSION} "
     pypi_fallback = " --extra-index-url https://pypi.org/simple/"
 
-    if gpu_choice == "NVIDIA_CUDA128":
-        return f"{base_cmd}--index-url https://download.pytorch.org/whl/cu128" + pypi_fallback
+    if gpu_choice == "NVIDIA_CUDA130":
+        return f"{base_cmd}--index-url https://download.pytorch.org/whl/cu130" + pypi_fallback
     elif gpu_choice == "AMD":
         py_tag = f"cp{PYTHON_VERSION.replace('.', '')}"
         return f"python -m pip install --upgrade https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/torch-{TORCH_VERSION}%2Brocm7.2.0.lw.git7e1940d4-{py_tag}-{py_tag}-linux_x86_64.whl --find-links https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/"
@@ -148,7 +148,7 @@ def get_requirements_file(gpu_choice):
     """Get requirements file path based on GPU choice"""
     requirements_base = os.path.join("requirements", "full")
 
-    if gpu_choice == "NVIDIA_CUDA128":
+    if gpu_choice == "NVIDIA_CUDA130":
         file_name = "requirements.txt"
     elif gpu_choice == "AMD":
         file_name = "requirements_amd.txt"
@@ -270,7 +270,7 @@ def update_pytorch_and_python():
 
 
 def clean_outdated_pytorch_cuda_dependencies():
-    patterns = ["cu121", "cu122", "rocm6", "torch2.4", "torch2.6", "torch2.7", "torchvision", "torchaudio"]
+    patterns = ["cu121", "cu122", "cu128", "rocm6", "torch2.4", "torch2.6", "torch2.7", "torchvision", "torchaudio"]
     result = run_cmd("python -m pip list --format=freeze", capture_output=True, environment=True)
     matching_packages = []
 
@@ -303,8 +303,8 @@ def install_webui():
                 cmd_flags_file.write("\n--cpu\n")
 
     # Handle CUDA version display
-    elif any((is_windows(), is_linux())) and gpu_choice == "NVIDIA_CUDA128":
-        print("CUDA: 12.8")
+    elif any((is_windows(), is_linux())) and gpu_choice == "NVIDIA_CUDA130":
+        print("CUDA: 13.0")
 
     # No PyTorch for AMD on Windows
     elif is_windows() and gpu_choice == "AMD":
